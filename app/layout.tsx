@@ -7,6 +7,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { ThemeProvider } from "@/providers/theme";
 
 import { ViewportIndicator } from "@/components/viewport-indicator";
+import { SnowfallComponent } from "@/components/snowfall";
 import { Toaster } from "@/components/ui/sonner";
 
 import "./globals.css";
@@ -45,9 +46,10 @@ export default function RootLayout({
           <Suspense fallback={<span>loading...</span>}>
             <TooltipProvider>{children}</TooltipProvider>
           </Suspense>
-          <ThemeToggle />
           <Toaster />
+          <ThemeToggle />
           <ViewportIndicator />
+          <SnowfallComponent />
         </ThemeProvider>
       </body>
     </html>
