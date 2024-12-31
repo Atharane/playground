@@ -5,7 +5,7 @@ import Snowfall from "react-snowfall";
 const SnowfallComponent = () => {
   return (
     <Snowfall
-      snowflakeCount={50}
+      snowflakeCount={20}
       changeFrequency={200}
       opacity={[0.3, 0.8]}
       wind={[-2, 4]}
