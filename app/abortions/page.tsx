@@ -1,14 +1,16 @@
 "use client";
 
+import { useEffect, useState, useRef } from "react";
+import { faker } from "@faker-js/faker";
 import Link from "next/link";
-import { useEffect, useState } from "react";
 
 const Abortions = () => {
 	const [flag, setFlag] = useState(true);
+	const masterController = useRef(new AbortController());
 	const [response, setResponse] = useState<Record<string, unknown>>({});
 	const [isLoading, setIsLoading] = useState(false);
-	const [delay, setDelay] = useState("1000");
-	const [timeout, setTimeout] = useState("1000");
+	const [delay, setDelay] = useState(1000);
+	const [timeout, setTimeout] = useState(1000);
 	const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 	const [networkStatus, setNetworkStatus] = useState(true);
 	const [windowSize, setWindowSize] = useState({
@@ -16,17 +18,22 @@ const Abortions = () => {
 		height: window.innerHeight,
 	});
 
+
 	useEffect(() => {
 		if (!flag) return;
 
 		const controller = new AbortController();
+		const combinedSignal = AbortSignal.any([
+			masterController.current.signal,
+			controller.signal,
+		]);
 
 		window.addEventListener(
 			"mousemove",
 			(e: MouseEvent) => {
 				setMousePosition({ x: e.clientX, y: e.clientY });
 			},
-			{ signal: controller.signal },
+			{ signal: combinedSignal },
 		);
 
 		window.addEventListener(
@@ -34,14 +41,14 @@ const Abortions = () => {
 			() => {
 				setNetworkStatus(navigator.onLine);
 			},
-			{ signal: controller.signal },
+			{ signal: combinedSignal },
 		);
 		window.addEventListener(
 			"offline",
 			() => {
 				setNetworkStatus(navigator.onLine);
 			},
-			{ signal: controller.signal },
+			{ signal: combinedSignal },
 		);
 
 		window.addEventListener(
@@ -52,7 +59,7 @@ const Abortions = () => {
 					height: window.innerHeight,
 				});
 			},
-			{ signal: controller.signal },
+			{ signal: combinedSignal },
 		);
 
 		return () => {
@@ -103,18 +110,42 @@ const Abortions = () => {
 					Toggle Event Listeners ({flag ? "Active" : "Inactive"})
 				</button>
 
+				<button
+					type="button"
+					disabled={masterController.current.signal.aborted}
+					onClick={() => {
+						const reason = { message: faker.hacker.phrase() };
+						masterController.current.abort(reason);
+						setTimeout((previous) => previous + 0.0001); // hack to force render
+					}}
+					className="w-full p-3 bg-red-600 hover:bg-red-700 text-white transition-colors duration-200 font-mono text-sm uppercase tracking-tight"
+				>
+					{masterController.current.signal.aborted
+						? "Kill Switch Engaged"
+						: "Master Kill Switch"}
+				</button>
+
+				{masterController.current.signal.aborted && (
+					<div className="p-3 bg-zinc-800 text-red-400 font-mono text-sm">
+						<span className="uppercase tracking-tight">Abort Reason:</span>
+						<p className="mt-1 italic">
+							{JSON.stringify(masterController.current.signal.reason)}
+						</p>
+					</div>
+				)}
+
 				<div className="grid grid-cols-2 w-full gap-2">
 					<input
 						type="number"
 						value={delay}
-						onChange={(e) => setDelay(e.target.value)}
+						onChange={(e) => setDelay(Number(e.target.value))}
 						className="p-3 w-full bg-zinc-800 text-white font-mono text-sm"
 						placeholder="?delay(ms)"
 					/>
 					<input
 						type="number"
 						value={timeout}
-						onChange={(e) => setTimeout(e.target.value)}
+						onChange={(e) => setTimeout(Number(e.target.value))}
 						className="p-3 w-full bg-zinc-800 text-white font-mono text-sm"
 						placeholder="?timeout(ms)"
 					/>
@@ -126,7 +157,7 @@ const Abortions = () => {
 						setIsLoading(true);
 						try {
 							const response = await fetch(`/api/mock?delay=${delay}`, {
-								signal: AbortSignal.timeout(Number(timeout)),
+								signal: AbortSignal.timeout(timeout),
 							});
 							setResponse(await response.json());
 						} finally {
