@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 const Abortions = () => {
+	const [flag, setFlag] = useState(true);
 	const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 	const [networkStatus, setNetworkStatus] = useState(true);
 	const [windowSize, setWindowSize] = useState({
@@ -12,6 +13,8 @@ const Abortions = () => {
 	});
 
 	useEffect(() => {
+		if (!flag) return; // early return
+
 		const controller = new AbortController();
 
 		// mouse position listener
@@ -52,9 +55,9 @@ const Abortions = () => {
 		);
 
 		return () => {
-			controller.abort();
+			controller.abort(); // mass abortion
 		};
-	}, []);
+	}, [flag]);
 
 	return (
 		<div className="flex flex-col items-center justify-center min-h-screen">
@@ -91,6 +94,14 @@ const Abortions = () => {
 						{windowSize.width}×{windowSize.height}
 					</code>
 				</div>
+
+				<button
+					type="button"
+					onClick={() => setFlag((previous) => !previous)}
+					className="w-full p-3 bg-primary hover:bg-primary/80 text-secondary transition-colors duration-200 font-mono text-sm uppercase tracking-tight"
+				>
+					Toggle Event Listeners ({flag ? "Active" : "Inactive"})
+				</button>
 			</div>
 
 			<Link
