@@ -18,7 +18,6 @@ const Abortions = () => {
 		height: window.innerHeight,
 	});
 
-
 	useEffect(() => {
 		if (!flag) return;
 
@@ -135,20 +134,36 @@ const Abortions = () => {
 				)}
 
 				<div className="grid grid-cols-2 w-full gap-2">
-					<input
-						type="number"
-						value={delay}
-						onChange={(e) => setDelay(Number(e.target.value))}
-						className="p-3 w-full bg-zinc-200 dark:bg-zinc-800 text-zinc-900 dark:text-white font-mono text-sm"
-						placeholder="?delay(ms)"
-					/>
-					<input
-						type="number"
-						value={timeout}
-						onChange={(e) => setTimeout(Number(e.target.value))}
-						className="p-3 w-full bg-zinc-200 dark:bg-zinc-800 text-zinc-900 dark:text-white font-mono text-sm"
-						placeholder="?timeout(ms)"
-					/>
+					<div className="flex flex-col">
+						<label
+							htmlFor="delay"
+							className="font-mono text-sm uppercase tracking-tight mb-1 px-1"
+						>
+							Delay (ms)
+						</label>
+						<input
+							id="delay"
+							type="number"
+							value={delay}
+							onChange={(e) => setDelay(Number(e.target.value))}
+							className="p-3 w-full bg-zinc-200 dark:bg-zinc-800 text-zinc-900 dark:text-white font-mono text-sm border-2 border-zinc-300 dark:border-zinc-700"
+						/>
+					</div>
+					<div className="flex flex-col">
+						<label
+							htmlFor="timeout"
+							className="font-mono text-sm uppercase tracking-tight mb-1 px-1"
+						>
+							Timeout (ms)
+						</label>
+						<input
+							id="timeout"
+							type="number"
+							value={timeout}
+							onChange={(e) => setTimeout(Number(e.target.value))}
+							className="p-3 w-full bg-zinc-200 dark:bg-zinc-800 text-zinc-900 dark:text-white font-mono text-sm border-2 border-zinc-300 dark:border-zinc-700"
+						/>
+					</div>
 				</div>
 				<button
 					type="button"
