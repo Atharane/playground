@@ -4,7 +4,7 @@
 
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "motion/react";
 import { unstableAfter } from "./actions";
 
 export default function Buttons() {
