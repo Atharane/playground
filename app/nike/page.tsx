@@ -2,6 +2,8 @@
 
 import { data } from "./data";
 import { Geist_Mono } from "next/font/google";
+import Fuse from "fuse.js";
+import { useState, useMemo } from "react";
 
 const geistMono = Geist_Mono({
 	subsets: ["latin"],
@@ -9,14 +11,51 @@ const geistMono = Geist_Mono({
 });
 
 export default function NikePage() {
+	const [searchQuery, setSearchQuery] = useState("");
+
+	// initialize fuse with better configuration
+	const fuse = useMemo(
+		() =>
+			new Fuse(data, {
+				keys: ["id", "type", "description"],
+				threshold: 0.3,
+				ignoreLocation: true,
+				minMatchCharLength: 2,
+				shouldSort: true,
+				findAllMatches: true,
+			}),
+		[],
+	);
+
+	const results = useMemo(() => {
+		if (!searchQuery.trim()) return data;
+		const searchResults = fuse.search(searchQuery);
+		return searchResults.length > 0
+			? searchResults.map((result) => result.item)
+			: data;
+	}, [fuse, searchQuery]);
+
 	return (
 		<div className="container mx-auto px-4 py-16 bg-white dark:bg-zinc-900 min-h-screen">
 			<h1 className="font-serif text-[7vw] md:text-4xl italic text-center mb-16 text-zinc-900 dark:text-white lowercase">
 				NikeFootball
 			</h1>
 
+			{/* add search input */}
+			<div className="mb-8">
+				<input
+					type="text"
+					placeholder="nike mercurial superfly"
+					value={searchQuery}
+					onChange={(e) => setSearchQuery(e.target.value)}
+					className="w-full mx-auto block px-4 py-2 border border-zinc-300 dark:border-zinc-700 
+							 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-none
+							 focus:outline-none focus:border-zinc-900 dark:focus:border-white"
+				/>
+			</div>
+
 			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-				{data.map((details) => (
+				{results.map((details) => (
 					<div
 						key={details.id}
 						className="group bg-muted border border-muted-foreground/40 rounded-none border-zinc-300 dark:border-zinc-700 hover:border-zinc-900 dark:hover:border-white transition-all duration-300 flex flex-col overflow-hidden"
